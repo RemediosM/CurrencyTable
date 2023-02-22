@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html {
+            min-height: 100%;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            width: 100vw;
+            background: linear-gradient(crimson, #053958);
+        }
+
+        .time {
+            position: absolute;
+            left: 15px;
+            width: 200px;
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size: large;
+            font-weight: 600;
+        }
+
+        .container {
+            width: 500px;
+            background: rgba(255, 255, 255, 0.747);
+            border-radius: 5px;
+        }
+
+        .container h3 {
+            text-align: center;
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+
+        .rate {
+            display: grid;
+            grid-template-columns: 1fr 3fr 1fr;
+            gap: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-bottom: 5px;
+            margin-top: 5px;
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.363);
+        }
+    </style>
+</head>
+<body>
+    <div class="time">
+        <span id="time"></span>
+    </div>
+    <div class="container">
+        <h3>Tabela NBP nr: <span id="date"></span></h3>
+        <div id="data-table">
+        </div>
+    </div>
+    <script>
+        startApp();
+
+        async function startApp() {
+            const apiUrl = "http://api.nbp.pl/api/exchangerates/tables/a?format=json";
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            console.log(data);
+            processData(data[0]);
+        }
+
+        function processData(data){
+            const code = data.effectiveDate;
+            const table = data.table;
+            const tableNum = data.no;
+            const ratesArr = data.rates;
+
+            const dataTableDiv = document.getElementById("data-table");
+            document.getElementById("date").innerHTML = tableNum;
+
+            ratesArr.forEach(function (el) {
+                const code = el.code;
+                const currency = el.currency;
+                const price = el.mid;
+
+                addRateContent(code, currency, price, dataTableDiv);
+
+            });
+
+        }
+
+        function addRateContent(code, currency, price, dataTableDiv){
+            const el = document.createElement("div");
+            el.classList.add("rate");
+
+            el.innerHTML = `
+                <div> ${code} </div>
+                <div> ${currency} </div>
+                <div> ${price} zł </div>
+            `;
+
+            console.log(el);
+            console.log(dataTableDiv);
+
+            dataTableDiv.append(el);
+
+        }
+
+        function currentTime(){
+            let date = new Date();
+            document.getElementById("time").innerHTML = date.toLocaleString();
+        }
+
+        setInterval(currentTime, 1000);
+    </script>
+</body>
+</html>
